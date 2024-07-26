@@ -17,7 +17,7 @@ function ContentCard(props: RetreatsType) {
   };
 
   return (
-    <div className="custom-bg-color rounded-md overflow-hidden cursor-pointer sm:hover:scale-105 transition-all">
+    <div className="custom-bg-color rounded-md overflow-hidden cursor-pointer sm:hover:bg-[#e0d9cfab] transition-all">
       <div className="card-img p-5">
         <img
           src={props.image}

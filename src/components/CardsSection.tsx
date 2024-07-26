@@ -7,16 +7,27 @@ function CardsSection() {
   const { data, isLoading, isError } = useRetreats();
 
   const [page, setPage] = useState(1);
+  const [uniqueTypes, setUniqueTypes] = useState<string[]>([]);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedType, setSelectedType] = useState("");
-  const [uniqueTypes, setUniqueTypes] = useState<string[]>([]);
+  const [searchInput, setSearchInput] = useState("");
 
   const limit = 3;
   let totalPage;
+  let filteredData;
 
-  const filteredData = data?.slice((page - 1) * limit, page * limit);
+  const formatCustomDate = (unixTimestamp: number): string => {
+    const date = new Date(unixTimestamp * 1000);
+    const options: Intl.DateTimeFormatOptions = {
+      year: "numeric",
+    };
 
-  totalPage = data ? Math.ceil(data.length / limit) : 1;
+    const formattedDate = date.toLocaleDateString("en-US", options);
+
+    const [year] = formattedDate.replace(",", "").split(" ");
+
+    return `${year}`;
+  };
 
   useEffect(() => {
     if (data) {
@@ -28,6 +39,41 @@ function CardsSection() {
       setUniqueTypes([...types]);
     }
   }, [data]);
+
+  const handleSearchInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchInput(e.target.value.toLowerCase());
+    setPage(1);
+  };
+
+  const handleDateChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedDate(e.target.value);
+    setPage(1);
+  };
+
+  const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedType(e.target.value);
+    setPage(1);
+  };
+
+  filteredData = data?.filter((retreat) => {
+    const matchesTitle = retreat.title.toLowerCase().includes(searchInput);
+    const matchesDate =
+      selectedDate === "" || formatCustomDate(retreat.date) === selectedDate;
+    const matchesType = selectedType === "" || retreat.type === selectedType;
+
+    return matchesTitle && matchesDate && matchesType;
+  });
+
+  totalPage = filteredData ? Math.ceil(filteredData.length / limit) : 1;
+
+  filteredData = filteredData?.slice((page - 1) * limit, page * limit);
+
+  if (isError)
+    return (
+      <h1 className="text-red-500 text-2xl text-center mt-5">
+        Something bad happened!
+      </h1>
+    );
 
   return (
     <>
@@ -50,18 +96,18 @@ function CardsSection() {
           <select
             id="date"
             className="bg-slate-200 outline-none border-2 border-slate-300 sm:border-none sm:bg-blue-950 text-gray-600 sm:text-white p-2 rounded-md cursor-pointer"
-            onChange={(e) => setSelectedDate(e.target.value)}
+            onChange={handleDateChange}
           >
-            <option defaultValue="">Filter by Date</option>
+            <option value="">Filter by Date</option>
             <option value="2024">2024-2025</option>
             <option value="2023">2023-2024</option>
           </select>
           <select
             id="type"
             className="bg-slate-200 outline-none border-2 border-slate-300 sm:border-none sm:bg-blue-950 text-gray-600 sm:text-white p-2 rounded-md cursor-pointer"
-            onChange={(e) => setSelectedType(e.target.value)}
+            onChange={handleTypeChange}
           >
-            <option defaultValue="">Filter by Type</option>
+            <option value="">Filter by Type</option>
             {uniqueTypes.map((type) => (
               <option key={type} value={type}>
                 {type}
@@ -73,12 +119,13 @@ function CardsSection() {
           type="text"
           placeholder="Search retreats by title"
           className="bg-white outline-none border-2 border-slate-200 sm:border-none sm:bg-blue-950 text-gray-600 sm:text-white p-2 rounded-md placeholder-gray-600 sm:placeholder-slate-400 w-full sm:w-1/3 pl-4 mt-5 sm:mt-0"
+          onChange={handleSearchInput}
         />
       </div>
       <div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {isLoading
-            ? Array.from({ length: limit }).map((s, idx) => (
+            ? Array.from({ length: limit }).map((_, idx) => (
                 <SkeletonCard key={idx} />
               ))
             : filteredData?.map((post) => (
