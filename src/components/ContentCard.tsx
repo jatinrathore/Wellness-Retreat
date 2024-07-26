@@ -36,6 +36,10 @@ function ContentCard(props: RetreatsType) {
           <p>Location: </p>
           <p>{props.location}</p>
         </span>
+        <span className="card-location flex gap-1 text-sm mb-2">
+          <p>Type: </p>
+          <p>{props.type}</p>
+        </span>
         <span className="card-price flex gap-1 text-sm mb-5 font-semibold">
           <p>Price: </p>
           <p>{props.price}</p>

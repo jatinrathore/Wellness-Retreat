@@ -12,7 +12,7 @@ interface RetreatsType {
   date: number;
   location: string;
   price: number;
-  type?: string;
+  type: string;
 }
 
 class APIClient {

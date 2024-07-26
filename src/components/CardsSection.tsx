@@ -138,6 +138,7 @@ function CardsSection() {
                   date={post.date}
                   location={post.location}
                   image={post.image}
+                  type={post.type}
                 />
               ))}
         </div>
